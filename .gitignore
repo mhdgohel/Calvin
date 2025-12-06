@@ -1,0 +1,32 @@
+# Build artifacts
+bin/
+obj/
+src_calvin/obj/
+*.o
+*.a
+*.so
+
+# Logs and Trace files
+*.log
+*.strace
+zookeeper.out
+zookeeper.log
+zookeeper_log
+test_output.txt
+trace*.log
+
+# Generated Configuration
+zoo.cfg
+
+# External dependencies (large binaries/libs)
+ext/
+
+# Data directories
+db/
+
+# System and IDE files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~
