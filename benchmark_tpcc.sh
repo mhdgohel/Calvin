@@ -20,18 +20,18 @@ fi
 
 # Create Zookeeper server config
 cat > zoo.cfg <<EOF
-tickTime=5000
+tickTime=20000
 initLimit=20
 syncLimit=10
 dataDir=/tmp/zookeeper
 clientPort=2181
-maxClientCnxns=500
+maxClientCnxns=2000
 EOF
 
 # Start Zookeeper
 echo "Starting Zookeeper..."
 ext/zookeeper-3.4.14/bin/zkServer.sh start $PWD/zoo.cfg
-sleep 5
+sleep 10
 
 echo "Starting 9 nodes (3 partitions, 3 replicas each)..."
 
@@ -43,14 +43,14 @@ do
     export LD_LIBRARY_PATH=$PWD/ext/local/lib:$PWD/ext/googletest/lib/.libs:$LD_LIBRARY_PATH
     bin/deployment/db $i t 10 > node_$i.log 2>&1 &
     
-    # Sleep 2s between nodes in same partition
-    sleep 2
+    # Sleep 5s between nodes in same partition
+    sleep 5
     
     # Sleep 20s between partitions (after node 2 and node 5)
-    if [ $i -eq 2 ] || [ $i -eq 5 ]; then
-        echo "Partition started. Waiting 20s before starting next partition..."
-        sleep 20
-    fi
+    # if [ $i -eq 2 ] || [ $i -eq 5 ]; then
+    #     echo "Partition started. Waiting 20s before starting next partition..."
+    #     sleep 20
+    # fi
 done
 
 echo "Cluster started. Waiting for 200 seconds to gather data..."
