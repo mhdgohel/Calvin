@@ -87,7 +87,7 @@ Paxos::Paxos(const string& zookeeper_config_file, bool reader) {
   // Get batches from the zookeeper concurrently if 'reader' is set to true.
   if (reader) {
     for (uint64 i = 0; i < CONCURRENT_GETS; i++) {
-      char current_read_batch_path[23];
+      char current_read_batch_path[64];
       snprintf(current_read_batch_path, sizeof(current_read_batch_path),
                "%s%010lu", "/root/batch-", i);
       int get_rc = zoo_aget(zh_, current_read_batch_path, 0,

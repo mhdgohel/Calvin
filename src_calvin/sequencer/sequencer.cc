@@ -143,9 +143,18 @@ void Sequencer::RunWriter() {
   }
   fprintf(stderr, "Node %d: Synchronization complete.\n", configuration_->this_node_id);
 
-  // Only the leader (Node 0) runs the writer loop.
-  if (configuration_->this_node_id != 0) {
+  // Only the leader of each partition (Replica 0) runs the writer loop.
+  if (configuration_->all_nodes[configuration_->this_node_id]->replica_id != 0) {
     return;
+  }
+
+  // Calculate number of partitions
+  int num_partitions = 0;
+  for (map<int, Node*>::iterator it = configuration_->all_nodes.begin();
+       it != configuration_->all_nodes.end(); ++it) {
+    if (it->second->partition_id >= num_partitions) {
+      num_partitions = it->second->partition_id + 1;
+    }
   }
 
   std::cout << "Starting sequencer.\n" << std::flush;
@@ -160,9 +169,9 @@ void Sequencer::RunWriter() {
   string batch_string;
   batch.set_type(MessageProto::TXN_BATCH);
 
-  for (int batch_number = configuration_->this_node_id;
+  for (int batch_number = configuration_->all_nodes[configuration_->this_node_id]->partition_id;
        !deconstructor_invoked_;
-       batch_number += configuration_->all_nodes.size()) {
+       batch_number += num_partitions) {
     // Begin epoch.
     double epoch_start = GetTime();
     batch.set_batch_number(batch_number);
@@ -318,6 +327,9 @@ void Sequencer::RunReader() {
       txn_count = 0;
       batch_count = 0;
     }
+    
+    // Explicit throttling to ensure fairness across all partitions
+    usleep(300000);
   }
   Spin(1);
 }

@@ -179,7 +179,7 @@ storage->Initmutex();
                                      new TPCC());
   }
 
-  Spin(180);
+  Spin(210);
   return 0;
 }
 
